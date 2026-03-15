@@ -67,7 +67,9 @@ class Empleado(models.Model):
         verbose_name_plural = 'Empleados'
         ordering = ['apellido', 'nombre']
         db_table = 'empleado'
-        indexes = [models.Index(fields=['activo', 'apellido', 'nombre'])]
+        indexes = [
+            models.Index(fields=['activo', 'apellido', 'nombre'], name='emp_activo_ap_nom_idx'),
+        ]
 
     def __str__(self):
         return f'{self.nombre} {self.apellido}'
@@ -177,10 +179,10 @@ class RegistroAsistencia(models.Model):
         unique_together = ['empleado', 'fecha']
         db_table = 'registro_asistencia'
         indexes = [
-            models.Index(fields=['fecha']),
-            models.Index(fields=['tipo_novedad', 'fecha']),
-            models.Index(fields=['empleado', 'fecha']),
-            models.Index(fields=['estado', 'fecha']),
+            models.Index(fields=['fecha'],                   name='reg_fecha_idx'),
+            models.Index(fields=['tipo_novedad', 'fecha'],   name='reg_novedad_fecha_idx'),
+            models.Index(fields=['empleado', 'fecha'],       name='reg_emp_fecha_idx'),
+            models.Index(fields=['estado', 'fecha'],         name='reg_estado_fecha_idx'),
         ]
 
     def __str__(self):
@@ -264,8 +266,8 @@ class AuditLog(models.Model):
         db_table = 'audit_log'
         ordering = ['-timestamp']
         indexes  = [
-            models.Index(fields=['accion', 'timestamp']),
-            models.Index(fields=['empleado', 'timestamp']),
+            models.Index(fields=['accion', 'timestamp'],   name='audit_accion_ts_idx'),
+            models.Index(fields=['empleado', 'timestamp'], name='audit_emp_ts_idx'),
         ]
 
     def __str__(self):
@@ -288,7 +290,9 @@ class KioscoToken(models.Model):
 
     class Meta:
         db_table = 'kiosco_token'
-        indexes  = [models.Index(fields=['token', 'usado', 'expira_at'])]
+        indexes  = [
+            models.Index(fields=['token', 'usado', 'expira_at'], name='kt_token_usado_exp_idx'),
+        ]
 
     def es_valido(self) -> bool:
         return not self.usado and timezone.now() < self.expira_at
