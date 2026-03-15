@@ -51,31 +51,15 @@ WSGI_APPLICATION = 'asistencia.wsgi.application'
 # ── Base de datos ─────────────────────────────────────────────────────────────
 # PostgreSQL si DATABASE_URL está definido (Railway/producción)
 # SQLite con WAL en desarrollo/Vercel
-_DATABASE_URL = os.environ.get('DATABASE_URL')
-
-if _DATABASE_URL:
-    import dj_database_url
-    DATABASES = {'default': dj_database_url.parse(_DATABASE_URL, conn_max_age=600)}
-else:
-    _DB_PATH = '/tmp/db.sqlite3' if os.environ.get('VERCEL') else str(BASE_DIR / 'db.sqlite3')
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': _DB_PATH,
-            'OPTIONS': {
-                'timeout': 20,
-                # WAL: lecturas no bloquean escrituras
-                # synchronous=NORMAL: safe ante crash de app, 3x más rápido que FULL
-                'init_command': (
-                    'PRAGMA journal_mode=WAL;'
-                    'PRAGMA synchronous=NORMAL;'
-                    'PRAGMA cache_size=10000;'
-                    'PRAGMA temp_store=MEMORY;'
-                    'PRAGMA foreign_keys=ON;'
-                ),
-            },
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 20,
         }
     }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
